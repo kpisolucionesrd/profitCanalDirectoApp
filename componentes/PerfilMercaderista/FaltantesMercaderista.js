@@ -145,7 +145,7 @@ export default class Encuesta extends Component{
         </Picker>
         <Icon name='camera' type='entypo' color='white' iconStyle={{marginLeft:300,marginBottom:50}} size={40} onPress={
           ()=>{
-            if(this.state.valorSeleccionado!="***SIN SELECCIONAR***"){
+            if(this.state.valorSeleccionado.toLowerCase()!="***sin seleccionar***"){
               this.props.navigation.navigate('CamaraTakerFaltantes',{
                 puntoVenta:this.state.valorSeleccionado
               });
