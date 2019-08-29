@@ -24,7 +24,7 @@ export default class CamaraTaker extends Component{
 
     const fotos=await this.state.fotos;
     const puntoVenta=navigation.getParam('puntoVenta');
-    const options = { quality: 0.8,skipProcessing:true};
+    const options = { quality: 0.8};
     const data = await this.camera.takePictureAsync(options);
     fotos.push(data.uri);
     this.setState({

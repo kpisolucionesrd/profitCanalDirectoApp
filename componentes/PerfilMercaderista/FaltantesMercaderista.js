@@ -3,19 +3,24 @@ import {Image, StyleSheet, Text, View,ScrollView,TextInput,KeyboardAvoidingView,
 import {Icon,Button} from 'react-native-elements';
 import Slideshow from 'react-native-slideshow';
 
+
+const URL="http://167.71.9.11:5002/api/canaldirecto/";
+//const URL="http://10.0.2.2/api/canaldirecto/";
+
 export default class Encuesta extends Component{
   constructor(props){
     super(props);
     this.state={
       fecha_hoy:new Date(), //Fecha del dia de hoy
-      campos:["prueba","PRUEBA","***SIN SELECCIONAR***"],
+      supermercados:["Super1","Super2","***SIN SELECCIONAR***"],
       valorSeleccionado:"***SIN SELECCIONAR***",
       fotos:[],
       disableButton:false,
+      comentario:"NA"
     }
     this.descargarCampos().then((result)=>{
       this.setState({
-        campos:result,
+        supermercados:result,
       })
     })
   }
@@ -38,19 +43,18 @@ export default class Encuesta extends Component{
       const datosUsuario=navigation.getParam('datosUsuario','some default value');
 
       /*Descargar los Campos iniciales*/
-      response=await fetch("http://167.99.167.145/api/canalDirecto/campos/"+datosUsuario.identificador);
+      response=await fetch(URL+"profit_supermercadosmercaderista/"+datosUsuario.identificador);
       responseJSON=await response.json();
-      camposIniciales=responseJSON[0].mercaderistaCallValue;
+      camposIniciales=responseJSON[0].supermercados;
 
       /*Descargar los campos completados*/
-      responseCompletados=await fetch("http://167.99.167.145/api/canalDirecto/CamposCompletados/"+datosUsuario.identificador+"/Faltantes");
+      responseCompletados=await fetch(URL+"profit_supermercadosCompletados/"+datosUsuario.identificador+"/Mercaderista/Faltantes");
       responseJSONCompletados=await responseCompletados.json();
       try {
-        camposCompletados=responseJSONCompletados[0].mercaderistaCallValue;
+        camposCompletados=responseJSONCompletados[0].supermercadoscompletados;
       } catch (e) {
         camposCompletados=["mercaderistaCallValue1"];
       }
-
       camposNoCompletados=camposIniciales.map((campo)=>{
         if(camposCompletados.includes(campo)){
           return null
@@ -73,36 +77,55 @@ export default class Encuesta extends Component{
   cargarData=async()=>{
     const { navigation } = this.props;
     const datosUsuario=navigation.getParam('datosUsuario','some default value');
-    this.setState({disableButton:true});
-    try {
+    const comments=this.state.comentario;
 
-      const { navigation } = this.props;
+    if(comments!="NA"){
+      this.setState({disableButton:true});
+      try {
+        //Cargar Comentario Faltantes
+        dataComentario={
+          identificador:datosUsuario.identificador,
+          tipoEncuesta:"Faltantes",
+          datalevantada:comments+"-"+this.state.valorSeleccionado
+        }
 
-      //cargar el colmado completado
-      data={
-        identificador:datosUsuario.identificador,
-        fecha_ejecucion:this.state.fecha_hoy.getDay()+"-"+this.state.fecha_hoy.getMonth()+"-"+this.state.fecha_hoy.getFullYear(),
-        mercaderistaCallValue:[this.state.valorSeleccionado],
-        encuesta:"Faltantes"
+        await fetch(URL+"profit_insertar_data",{
+          method:'POST',
+          headers:{
+            Accept:'application/json',
+            'Content-Type': 'application/json'
+          },
+          body:JSON.stringify(dataComentario)
+        });
+
+        //cargar el colmado completado
+        data={
+          identificador:datosUsuario.identificador,
+          tipousuario:"Mercaderista",
+          supermercadoscompletados:[this.state.valorSeleccionado],
+          tipoEncuesta:"Faltantes"
+        }
+        await fetch(URL+"profit_supermercadosCompletados",{
+          method:'POST',
+          headers:{
+            Accept:'application/json',
+            'Content-Type': 'application/json'
+          },
+          body:JSON.stringify(data)
+        });
+
+        //Cargar las imagenes al servidor
+        let fotos=navigation.getParam('fotos','NA');
+        if(fotos.length<35){
+          await fotos.forEach(this.cargarIMG);
+        }else{
+          alert("La cantidad de fotos debe ser menor a 35");
+        }
+      } catch (e) {
+        alert(e)
       }
-      await fetch("http://167.99.167.145/api/canalDirecto/CamposCompletados",{
-        method:'POST',
-        headers:{
-          Accept:'application/json',
-          'Content-Type': 'application/json'
-        },
-        body:JSON.stringify(data)
-      });
-
-      //Cargar las imagenes al servidor
-      let fotos=navigation.getParam('fotos','NA');
-      if(fotos.length<35){
-        await fotos.forEach(this.cargarIMG);
-      }else{
-        alert("La cantidad de fotos debe ser menor a 35");
-      }
-    } catch (e) {
-      alert(e)
+    }else{
+      alert("Favor proporcionar un Comentario");
     }
   };
 
@@ -115,7 +138,7 @@ export default class Encuesta extends Component{
       h.Accept = 'application/json';
       let formData=new FormData();
       await formData.append("foto_colmados",{uri:imagenURI,name:"Faltantes-"+puntoVenta+".jpg",type:'image/jpg'})
-      await fetch("http://167.99.167.145/api/profit_insertar_imagenes",{
+      await fetch(URL+"insertarimagenes",{
         method:'POST',
         headers:h,
         body:formData
@@ -141,8 +164,15 @@ export default class Encuesta extends Component{
       <ScrollView style={iniciar_seccion_styles.main}>
         <Text style={{color:'white',fontSize:20,fontWeight:'bold'}}>Favor Seleccionar Punto de Venta</Text>
         <Picker onValueChange={this.gettingComboBox} selectedValue={this.state.valorSeleccionado} style={{backgroundColor:'white',width:'100%',marginBottom:15}}>
-          {this.state.campos.map((campo)=><Picker.Item label={campo} value={campo} />)}
+          {this.state.supermercados.map((campo)=><Picker.Item label={campo} value={campo} />)}
         </Picker>
+
+        {/*Campos para el COMENTARIO section*/}
+        <Text style={iniciar_seccion_styles.secciones}>SECCION COMENTARIO</Text>
+        <TextInput style={{backgroundColor:"white",width:"100%"}} value={this.state.comentario} onChangeText={(valor)=>{
+          this.setState({comentario:valor});
+        }}/>
+
         <Icon name='camera' type='entypo' color='white' iconStyle={{marginLeft:300,marginBottom:50}} size={40} onPress={
           ()=>{
             if(this.state.valorSeleccionado.toLowerCase()!="***sin seleccionar***"){
@@ -150,7 +180,7 @@ export default class Encuesta extends Component{
                 puntoVenta:this.state.valorSeleccionado
               });
             }else{
-              alert("Debe seleccionar un punto de venta")
+              alert("Debe seleccionar un punto de venta");
             }
           }
         }/>
@@ -168,5 +198,13 @@ const iniciar_seccion_styles=StyleSheet.create({
     backgroundColor:'red',
     height:'100%',
     padding:6
+  },
+  secciones:{
+    color:'white',
+    fontSize:20,
+    fontWeight:'bold',
+    backgroundColor:'darkblue',
+    width:'100%',
+    textAlign:'center'
   }
 })

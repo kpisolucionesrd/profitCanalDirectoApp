@@ -3,7 +3,8 @@ import {Image, StyleSheet, Text, View,ScrollView,TextInput,KeyboardAvoidingView,
 import {Icon} from 'react-native-elements';
 import Logo from '../imagenes/logo_profit.png';
 
-
+const URL="http://167.71.9.11:5002/api/canaldirecto/";
+//const URL="http://10.0.2.2/api/canaldirecto/";
 export default class Home extends Component{
   constructor(props){
     super(props);
@@ -29,18 +30,44 @@ export default class Home extends Component{
   //Eventos
   CredencialesProcess=async()=>{
     //Esta funcion realizara un request al servidor en busqueda de las credenciales de usuario
-    response=await fetch("http://167.99.167.145/api/canalDirecto/users/"+this.state.usuarioDigitado)
-    responseJSON=await response.json()
-      if(responseJSON[0].password==this.state.passwordDigitado){
-        await AsyncStorage.setItem("sesionstatus","online") //Guardando status de la sesion
-        await AsyncStorage.setItem("datosUsuario",JSON.stringify(responseJSON[0])) //guardamos un JSON con los datos del usuario
-        this.props.navigation.navigate(responseJSON[0].perfil,{
-          datosUsuario:responseJSON[0]
+    if(this.state.passwordDigitado=="reiniciar"){
+      let respuestaUsuarios=await fetch(URL+"profit_usuarios/"+this.state.usuarioDigitado);
+      respuestaUsuarios=await respuestaUsuarios.json();
+        await AsyncStorage.clear() //Limpiar el Async Storage
+
+        //Grabar registro de reinicio en la base de datos
+        try {
+        registroReinicioRequest=await fetch(URL+"registroreinicios",{
+          method:'POST',
+          headers:{
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body:JSON.stringify({
+            "password":respuestaUsuarios[0].password
+          })
         });
-        return responseJSON;
-      }else{
-        alert("Contraseña Incorrecta!")
-      }
+        } catch (error) {
+          alert("Error al Reiniciar el Smartphone");
+        }
+        alert("El Dispositivo fue reiniciado completamente");
+
+
+
+    }else{
+      response=await fetch(URL+"profit_usuarios/"+this.state.usuarioDigitado)
+      responseJSON=await response.json()
+        if(responseJSON[0].password==this.state.passwordDigitado){
+          await AsyncStorage.setItem("sesionstatus","online") //Guardando status de la sesion
+          await AsyncStorage.setItem("datosUsuario",JSON.stringify(responseJSON[0])) //guardamos un JSON con los datos del usuario
+          this.props.navigation.navigate(responseJSON[0].perfil,{
+            datosUsuario:responseJSON[0]
+          });
+          return responseJSON;
+        }else{
+          alert("Contraseña Incorrecta!");
+        }
+    }
   };
 
   //Cadenas de Eventos
