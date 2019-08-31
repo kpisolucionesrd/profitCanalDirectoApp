@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Image, StyleSheet, Text, View,ScrollView,TextInput,KeyboardAvoidingView,Alert,AsyncStorage,Picker} from 'react-native';
+import {Image, StyleSheet, Text, View,ScrollView,ActivityIndicator,Picker} from 'react-native';
 import Logo from '../../imagenes/logo_profit.png';
 import TextBoxInputCustom from '../ElementosCompactos/TextBoxCustom.js';
 import {Icon,Button} from 'react-native-elements';
@@ -209,6 +209,7 @@ export default class MedidasEspacios extends Component{
     super(props);
     this.state={
       fecha_hoy:new Date(), //Fecha del dia de hoy
+      cargando:false,
       objetoDatosMedidas:{
         cremasDetales80:{},
         hiloDental50:{},
@@ -229,7 +230,8 @@ export default class MedidasEspacios extends Component{
     }
     this.descargarCampos().then((result)=>{
       this.setState({
-        supermercados:result
+        supermercados:result,
+        cargando:true
       })
     })
   };
@@ -309,7 +311,8 @@ export default class MedidasEspacios extends Component{
       })
       return camposNoCompletadosFiltered
     } catch (e) {
-      alert(e)
+      alert("Error al Cargar los puntos de Ventas");
+      return ["Super1","Super2","***SIN SELECCIONAR***"];
     }
   };
 
@@ -371,6 +374,10 @@ export default class MedidasEspacios extends Component{
       await this.props.navigation.navigate(datosUsuario.perfil,{
         datosUsuario:datosUsuario,
       })
+
+      //Mensaje Datos Enviados al Servidor
+      alert("Enviados al servidor CORRECTAMENTE");
+      
     }else{
       alert("Faltan Campos por completar")
     }
@@ -386,49 +393,59 @@ export default class MedidasEspacios extends Component{
   render(){
     const { navigation } = this.props;
     const datosUsuario=navigation.getParam('datosUsuario','some default value');
-    return(
-      <ScrollView style={iniciar_seccion_styles.main}>
 
-        <Text style={{color:'white',fontSize:20,fontWeight:'bold'}}>Favor Seleccionar Punto de Venta</Text>
-        <Picker onValueChange={this.gettingComboBox} selectedValue={this.state.puntoVenta} style={{backgroundColor:'white',width:'100%',marginBottom:30}}>
-          {this.state.supermercados.map((campo)=><Picker.Item label={campo} value={campo} />)}
-        </Picker>
+    if(this.state.cargando){
+      return(
+        <ScrollView style={iniciar_seccion_styles.main}>
 
-        <Text style={iniciar_seccion_styles.secciones}>CREMAS DENTALES</Text>
-        {campos.cremasDetales80.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={{color:'white',fontSize:20,fontWeight:'bold'}}>Favor Seleccionar Punto de Venta</Text>
+          <Picker onValueChange={this.gettingComboBox} selectedValue={this.state.puntoVenta} style={{backgroundColor:'white',width:'100%',marginBottom:30}}>
+            {this.state.supermercados.map((campo)=><Picker.Item label={campo} value={campo} />)}
+          </Picker>
 
-        <Text style={iniciar_seccion_styles.secciones}>HILO DENTAL</Text>
-        {campos.hiloDental50.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>CREMAS DENTALES</Text>
+          {campos.cremasDetales80.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>SUAVIZANTES</Text>
-        {campos.suavizantes65.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>HILO DENTAL</Text>
+          {campos.hiloDental50.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>LAVAPLATOS LIQUIDOS</Text>
-        {campos.lavaplatosLiquidos45.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>SUAVIZANTES</Text>
+          {campos.suavizantes65.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>CEPILLOS DENTALES</Text>
-        {campos.cepillosDentales.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>LAVAPLATOS LIQUIDOS</Text>
+          {campos.lavaplatosLiquidos45.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>JABONES DE TOCADOR</Text>
-        {campos.jabonesTocador50.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>CEPILLOS DENTALES</Text>
+          {campos.cepillosDentales.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>ENJUAGUE BUCAL</Text>
-        {campos.enjuagueBucal40.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>JABONES DE TOCADOR</Text>
+          {campos.jabonesTocador50.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>DESODORANTE</Text>
-        {campos.desodorante30.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>ENJUAGUE BUCAL</Text>
+          {campos.enjuagueBucal40.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>LAVAPLATOS CREMA</Text>
-        {campos.lavaplatosCrema50.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>DESODORANTE</Text>
+          {campos.desodorante30.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Text style={iniciar_seccion_styles.secciones}>DESINFECTANTES</Text>
-        {campos.desinfectantes.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
+          <Text style={iniciar_seccion_styles.secciones}>LAVAPLATOS CREMA</Text>
+          {campos.lavaplatosCrema50.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-        <Icon disabled={this.state.disableButton} name='done' type='materiallcons' color='white' iconStyle={{marginLeft:300}} size={40} onPress={this.completarMedidas}/>
-        {campos.disableButton ? null:<Text style={{marginLeft:300,color:'white',fontSize:15,marginBottom:15}} onPress={this.completarMedidas}>Listo</Text>}
+          <Text style={iniciar_seccion_styles.secciones}>DESINFECTANTES</Text>
+          {campos.desinfectantes.map((campo)=><TextBoxInputCustom identificacion={campo} funcion={this.crearJson} value={campo}/>)}
 
-      </ScrollView>
-    )
+          <Icon disabled={this.state.disableButton} name='done' type='materiallcons' color='white' iconStyle={{marginLeft:300}} size={40} onPress={this.completarMedidas}/>
+          {campos.disableButton ? null:<Text style={{marginLeft:300,color:'white',fontSize:15,marginBottom:15}} onPress={this.completarMedidas}>Listo</Text>}
+
+        </ScrollView>
+      )
+    }else{
+      return(
+        <View>
+          <Text style={{color:'black',fontSize:20,fontWeight:'bold'}}>Cargando Puntos de Ventas</Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )
+    }
   }
 }
 

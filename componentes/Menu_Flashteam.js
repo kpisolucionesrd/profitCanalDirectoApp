@@ -30,7 +30,7 @@ export default class MenuFlashTeam extends Component{
       <ScrollView style={iniciar_seccion_styles.main}>
         <Text style={{color:'white',fontSize:30,fontWeight:'bold',textAlign:'center',marginBottom:110}}>Hola! Sr. {datosUsuario.nombre}</Text>
         <Button icon={{name:'list',type:'entypo'}} title='Encuesta FlashTeam'onPress={this.iniciarEncuesta.bind(this)} buttonStyle={{width:'80%',marginLeft:'10%',backgroundColor:'white',borderColor:'red'}} titleStyle={{color:'red',fontWeight:'bold'}}/>
-        <Text style={{color:'white',fontSize:8,fontWeight:'bold',textAlign:'center',marginTop:50}}>Release Date: 2019-Feb-01</Text>
+        <Text style={{color:'white',fontSize:8,fontWeight:'bold',textAlign:'center',marginTop:50}}>Release Date: 2019-Agosto-31</Text>
       </ScrollView>
     )
   }

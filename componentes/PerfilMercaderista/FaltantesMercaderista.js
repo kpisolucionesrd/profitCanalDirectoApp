@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Image, StyleSheet, Text, View,ScrollView,TextInput,KeyboardAvoidingView,Alert,AsyncStorage,Picker} from 'react-native';
+import {Image, StyleSheet, Text, View,ScrollView,TextInput,ActivityIndicator,Picker} from 'react-native';
 import {Icon,Button} from 'react-native-elements';
 import Slideshow from 'react-native-slideshow';
 
@@ -12,6 +12,7 @@ export default class Encuesta extends Component{
     super(props);
     this.state={
       fecha_hoy:new Date(), //Fecha del dia de hoy
+      cargando:false,
       supermercados:["Super1","Super2","***SIN SELECCIONAR***"],
       valorSeleccionado:"***SIN SELECCIONAR***",
       fotos:[],
@@ -21,6 +22,7 @@ export default class Encuesta extends Component{
     this.descargarCampos().then((result)=>{
       this.setState({
         supermercados:result,
+        cargando:true
       })
     })
   }
@@ -70,7 +72,8 @@ export default class Encuesta extends Component{
       })
       return camposNoCompletadosFiltered
     } catch (e) {
-      alert(e)
+      alert("Error al Cargar los puntos de Ventas");
+      return ["Super1","Super2","***SIN SELECCIONAR***"];
     }
   };
 
@@ -145,7 +148,7 @@ export default class Encuesta extends Component{
       });
       if(index==vector.length-1){
         this.setState({disableButton:false});
-        alert("Enviados al servidor CORRECTAMENTE")
+        alert("Enviados al servidor CORRECTAMENTE");
         this.props.navigation.goBack(); //Navegar
       }
     }
@@ -160,36 +163,45 @@ export default class Encuesta extends Component{
     const fotos=navigation.getParam('fotos');
     const puntoVenta=navigation.getParam('puntoVenta');
 
-    return(
-      <ScrollView style={iniciar_seccion_styles.main}>
-        <Text style={{color:'white',fontSize:20,fontWeight:'bold'}}>Favor Seleccionar Punto de Venta</Text>
-        <Picker onValueChange={this.gettingComboBox} selectedValue={this.state.valorSeleccionado} style={{backgroundColor:'white',width:'100%',marginBottom:15}}>
-          {this.state.supermercados.map((campo)=><Picker.Item label={campo} value={campo} />)}
-        </Picker>
+    if(this.state.cargando){
+      return(
+        <ScrollView style={iniciar_seccion_styles.main}>
+          <Text style={{color:'white',fontSize:20,fontWeight:'bold'}}>Favor Seleccionar Punto de Venta</Text>
+          <Picker onValueChange={this.gettingComboBox} selectedValue={this.state.valorSeleccionado} style={{backgroundColor:'white',width:'100%',marginBottom:15}}>
+            {this.state.supermercados.map((campo)=><Picker.Item label={campo} value={campo} />)}
+          </Picker>
 
-        {/*Campos para el COMENTARIO section*/}
-        <Text style={iniciar_seccion_styles.secciones}>SECCION COMENTARIO</Text>
-        <TextInput style={{backgroundColor:"white",width:"100%"}} value={this.state.comentario} onChangeText={(valor)=>{
-          this.setState({comentario:valor});
-        }}/>
+          {/*Campos para el COMENTARIO section*/}
+          <Text style={iniciar_seccion_styles.secciones}>SECCION COMENTARIO</Text>
+          <TextInput style={{backgroundColor:"white",width:"100%"}} value={this.state.comentario} onChangeText={(valor)=>{
+            this.setState({comentario:valor});
+          }}/>
 
-        <Icon name='camera' type='entypo' color='white' iconStyle={{marginLeft:300,marginBottom:50}} size={40} onPress={
-          ()=>{
-            if(this.state.valorSeleccionado.toLowerCase()!="***sin seleccionar***"){
-              this.props.navigation.navigate('CamaraTakerFaltantes',{
-                puntoVenta:this.state.valorSeleccionado
-              });
-            }else{
-              alert("Debe seleccionar un punto de venta");
+          <Icon name='camera' type='entypo' color='white' iconStyle={{marginLeft:300,marginBottom:50}} size={40} onPress={
+            ()=>{
+              if(this.state.valorSeleccionado.toLowerCase()!="***sin seleccionar***"){
+                this.props.navigation.navigate('CamaraTakerFaltantes',{
+                  puntoVenta:this.state.valorSeleccionado
+                });
+              }else{
+                alert("Debe seleccionar un punto de venta");
+              }
             }
-          }
-        }/>
-        <Text style={{textAlign:'left',color:'white',fontSize:15}}>Imagenes Capturadas</Text>
-        {typeof(fotos)!="undefined" ? <Slideshow dataSource={fotos.map((foto)=>{return{url:foto}})}/>:null}
-        <Icon disabled={this.state.disableButton} name='done' type='materiallcons' color='white' iconStyle={{marginLeft:300}} size={40} onPress={this.cargarData}/>
-        {this.state.disableButton ? null:<Text style={{marginLeft:300,color:'white',fontSize:15}} onPress={this.cargarData}>Listo</Text>}
-      </ScrollView>
-    )
+          }/>
+          <Text style={{textAlign:'left',color:'white',fontSize:15}}>Imagenes Capturadas</Text>
+          {typeof(fotos)!="undefined" ? <Slideshow dataSource={fotos.map((foto)=>{return{url:foto}})}/>:null}
+          <Icon disabled={this.state.disableButton} name='done' type='materiallcons' color='white' iconStyle={{marginLeft:300}} size={40} onPress={this.cargarData}/>
+          {this.state.disableButton ? null:<Text style={{marginLeft:300,color:'white',fontSize:15}} onPress={this.cargarData}>Listo</Text>}
+        </ScrollView>
+      )
+    }else{
+      return(
+        <View>
+          <Text style={{color:'black',fontSize:20,fontWeight:'bold'}}>Cargando Puntos de Ventas</Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )
+    }
   }
 }
 

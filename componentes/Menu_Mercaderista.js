@@ -65,7 +65,7 @@ export default class MenuMercaderista extends Component{
         <Button icon={{name:'list',type:'entypo'}} title='Planograma'onPress={this.iniciarPlanograma.bind(this)} buttonStyle={{width:'80%',marginLeft:'10%',backgroundColor:'white',borderColor:'red',marginBottom:15}} titleStyle={{color:'red',fontWeight:'bold'}}/>
         <Button icon={{name:'list',type:'entypo'}} title='Fleje de Ofertas'onPress={this.iniciarFlejeOfertas.bind(this)} buttonStyle={{width:'80%',marginLeft:'10%',backgroundColor:'white',borderColor:'red',marginBottom:15}} titleStyle={{color:'red',fontWeight:'bold'}}/>
 
-        <Text style={{color:'white',fontSize:8,fontWeight:'bold',textAlign:'center',marginTop:50}}>Release Date: 2019-Feb-01</Text>
+        <Text style={{color:'white',fontSize:8,fontWeight:'bold',textAlign:'center',marginTop:50}}>Release Date: 2019-Agosto-31</Text>
 
       </ScrollView>
     )
