@@ -3,7 +3,8 @@ import {Image, StyleSheet, Text, View,ScrollView,TextInput,KeyboardAvoidingView,
 import {Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const URL="http://167.71.9.11:5002/api/canaldirecto/";
+//const URL="http://167.71.9.11:5002/api/canaldirecto/";
+const URL="http://165.22.205.126:5002/api/";
 //const URL="http://10.0.2.2/api/canaldirecto/";
 
 export default class MenuFlashTeam extends Component{

@@ -3,6 +3,8 @@ import {Image, StyleSheet, Text, View,ScrollView,TextInput,KeyboardAvoidingView,
 import {Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+const URL="http://165.22.205.126:5002/api/";
+
 
 export default class ProcesoCompletado extends Component{
   constructor(props){
@@ -34,14 +36,14 @@ export default class ProcesoCompletado extends Component{
       datosMedidas:JSON.stringify(datosMedidas),
 
     }
-    await fetch("http://167.99.167.145/api/canalDirecto/CamposCompletados",{
+    /*await fetch(URL+"canalDirecto/CamposCompletados",{
       method:'POST',
       headers:{
         Accept:'application/json',
         'Content-Type': 'application/json'
       },
       body:JSON.stringify(data)
-    });
+    });*/
 
     //Cargar las fotos
     await fotosFaltantes.forEach(this.cargarIMGFaltantes) //Cargar las fotos Faltantes
@@ -60,7 +62,7 @@ export default class ProcesoCompletado extends Component{
       h.Accept = 'application/json';
       let formData=new FormData();
       await formData.append("foto_colmados",{uri:imagenURI,name:"Faltantes-"+dataRadarExhibiciones.puntoVentaName+".jpg",type:'image/jpg'})
-      await fetch("http://167.99.167.145/api/profit_insertar_imagenes",{
+      await fetch(URL+"profit_insertar_imagenes",{
         method:'POST',
         headers:h,
         body:formData
@@ -80,7 +82,7 @@ export default class ProcesoCompletado extends Component{
       h.Accept = 'application/json';
       let formData=new FormData();
       await formData.append("foto_colmados",{uri:imagenURI,name:"Planograma-"+dataRadarExhibiciones.puntoVentaName+".jpg",type:'image/jpg'})
-      await fetch("http://167.99.167.145/api/profit_insertar_imagenes",{
+      await fetch(URL+"api/profit_insertar_imagenes",{
         method:'POST',
         headers:h,
         body:formData
@@ -100,7 +102,7 @@ export default class ProcesoCompletado extends Component{
       h.Accept = 'application/json';
       let formData=new FormData();
       await formData.append("foto_colmados",{uri:imagenURI,name:"Flejes-"+dataRadarExhibiciones.puntoVentaName+".jpg",type:'image/jpg'})
-      await fetch("http://167.99.167.145/api/profit_insertar_imagenes",{
+      await fetch(URL+"api/profit_insertar_imagenes",{
         method:'POST',
         headers:h,
         body:formData
